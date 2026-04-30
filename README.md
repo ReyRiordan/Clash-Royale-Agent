@@ -28,7 +28,7 @@ Possible states:
 ### Perception Pipeline
 
 Simple computer vision (cards in hand, elixir, tower HP):
-- Cards in hand: take card slot crops, compare against the 8 known cropped view of cards in deck using OpenCV's matchTemplate(), pick highest match
+- Cards in hand: take card slot crops, compare against the 8 known cropped view of cards in deck using greyscale conversion + SSIM, take best match (handles visual effect when not enough elixir)
 - Elixir and Tower HP: take crop of numbers, use basic thresholding to convert to black/white, OCR it (PyTesseract?)
 
 YOLO network (troop detection):
@@ -53,7 +53,7 @@ Environment: construct state tensor (C, H, W) where H=32 and W=18 (arena tiling 
 - Channel 8-15: enemy troops
 - Elixir + tower HP: each normalized to [0,1]
 - Cards in hand: one-hot encoded vector x 4
-- **ISSUE**: elixir / tower HP / cards in hand are all not conducive to feature channel shape, how to include? append to dense layers later?
+- Run 16 channels through conv layers, then flatten + concatenate non-channel input before dense layers
 
 Actions: discrete action space of whether to play card, which card to play, where to play card
 - Discrete choice of 5 actions: card 1, card 2, card 3, card 4, "wait"
