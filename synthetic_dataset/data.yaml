@@ -1,0 +1,22 @@
+path: /Users/reyriordan/Documents/CS530-Final-Project/synthetic_dataset
+train: images
+val: images
+
+nc: 16
+names:
+  - archer_ally
+  - giant_ally
+  - goblin_ally
+  - knight_ally
+  - mekka_ally
+  - minion_ally
+  - musketeer_ally
+  - spoblin_ally
+  - archer_enemy
+  - giant_enemy
+  - goblin_enemy
+  - knight_enemy
+  - mekka_enemy
+  - minion_enemy
+  - musketeer_enemy
+  - spoblin_enemy
