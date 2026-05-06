@@ -69,3 +69,19 @@ Reinforcement Learning + Human Behavior Bootstrapping:
 - Positive rewards: deal tower damage, take opponent tower, win game
 - Negative rewards: take tower damage, lose tower, lose game, "leak" elixir, invalid action (not enough elixir to place card)
 - Auto-play training games to RL train
+
+## Codebase
+
+### Code
+
+capture_images.py -> take screenshot and crop/segment into 12 relevant regions
+synthetic_generation.py -> generate N synthetic data examples
+visualize_labels.py -> visualize bounding boxes + labels for synthetically generated examples
+train_yolo.py -> code to fine-tune YOLO26 with synthetic data
+record_data.py -> unfinished, supposed to record state + actions while human is playing on emulator
+
+### Files
+
+sprites/ -> all sprites for 16 troop classes (100-200 transparent pngs each), used for synthetic data generation
+synthetic_dataset/ -> all synthetically generated data to fine-tune YOLO network, includes images/ labels/ data.yaml
+templates/ -> images of all cards + tower/arena states to use for comparison/detection base later
