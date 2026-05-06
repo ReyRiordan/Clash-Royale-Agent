@@ -45,6 +45,10 @@ Training troop detection YOLO:
 - Split synthetically generated dataset into training and validation sets
 - Fine-tune YOLO26 for N epochs
 - Stop when out of time or validation accuracy plateaus
+- Freeze backbone (train only head/neck first), might use minor data augmentation
+- https://docs.ultralytics.com/guides/finetuning-guide/#freezing-layers
+- https://docs.ultralytics.com/guides/custom-trainer/
+- https://docs.ultralytics.com/guides/yolo-data-augmentation/#hue-adjustment-hsv_h
 
 ### State Representations
 
