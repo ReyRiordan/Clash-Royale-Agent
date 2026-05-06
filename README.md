@@ -54,26 +54,18 @@ Environment: construct state tensor (C, H, W) where H=32 and W=18 (arena tiling 
 - Elixir + tower HP: each normalized to [0,1]
 - Cards in hand: one-hot encoded vector x 4
 
-Actions: discrete action space of whether to play card, which card to play, where to play card
-- Discrete choice of 5 actions: card 1, card 2, card 3, card 4, "wait"
-- Discrete choice of 16x18 = 288 tiles (deck contains only troops -> can only play in ally half of arena) *Actually only 224 valid tiles here due to towers in the way and such
-- NOTE: more valid tiles open up to place troops after taking an enemy tower, but we are ignoring this for simplicity
+Actions: discrete action space of 33 actions (whether to play card, which card to play, where to play card)
+- Discrete choice of playing each card in hand 1-4 in one of 8 tiles in arena, or just "wait" without playing card -> (4 cards x 8 tiles) + 1 wait = 33 total actions
+- NOTE 1: 224 valid tiles, but shrinking action space to 8 key tiles for manageable action space + macro placement matters more at beginner level
+- NOTE 2: more valid tiles open up to place troops after taking an enemy tower, but we are ignoring this for simplicity
 
 ### Agent Policy
 
-Bootstrapping on human behavior (imitation learning):
+Reinforcement Learning + Human Behavior Bootstrapping:
+- Use double DQN with Prioritized Experience Replay (PER) buffer, pre-fill buffer with human data
 - Python script that records data while human plays on emulator: record environment state every second, record actions taken (attach actions to nearest state for dataset)
 - Human plays N matches against arena 1 training camp bot (try to play predictably, use similar counters and build up pushes in similar ways)
-- Train CNN to predict human actions based on environment state
-- Environment state input: run 16 channels through conv layers, then flatten + concatenate non-channel input before dense layers
-- Action state output: use two heads (card head, tile head) -> card head chooses one of 4 cards in hand or "wait", then that choice (if not "wait") is fed as one-hot concat on feature vector into tile head to choose out of 224 valid tiles
-- Two cross-entropy losses (card, tile) -> zero out tile loss when card not chosen, normalize, then add for total loss
-
-
-Reinforcement Learning:
-- Large environment and action state spaces -> use Proximal Policy Optimization (PPO)
-- Reward function: calculate change in tower health (positive reward for damage dealt, negative for damage taken)
-- Also reward/penalize other actions such as leaking elixir (penalty), trying to place card when not enough elixir for it (penalty), destroying enemy tower (when hits 0 HP, huge reward), letting ally tower get destroyed (huge penalty), win game (huge reward), lose game (huge penalty) -> require more harness / computer vision components?
-- Create additional harness components that automatically detect game end and start new training game
-- Use human action bootstrapped CNN as policy, run PPO on these rewards for however much time is available (maybe run overnight?)
-- **ISSUE**: PPO is actor-critic learning, CNN is actor but no critic trained during imitation learning -> critic will start out ass and might ruin the actor too -> split CNN into shared feature extractor? freeze actor to let critic catch-up for a bit? feed human dataset directly into PPO to do offline learning first (SB3 imitation)? Generative Adversarial Imitation Learning (GAIL)? *PROB DOING CRITIC WARMUP CUZ EASIEST
+- Undersample "wait" frames if excessively overrepresented in data
+- Positive rewards: deal tower damage, take opponent tower, win game
+- Negative rewards: take tower damage, lose tower, lose game, "leak" elixir, invalid action (not enough elixir to place card)
+- Auto-play training games to RL train
