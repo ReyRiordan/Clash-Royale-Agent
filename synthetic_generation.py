@@ -6,7 +6,8 @@ from PIL import Image
 
 # ----- CONFIG -----
 
-N_TO_GENERATE = 20  # num data points to generate
+N_TO_GENERATE = 3000  # num data points to generate
+VAL_SPLIT = 0.1
 
 # Exponent base B for cross side placeement probability weight: P = B^d, where d = rows from center
 # Ex. First row across -> P = 0.8^0 = 1, last row across -> P = 0.8^15 = ~0.03
@@ -89,7 +90,7 @@ CLASS_INFO = [(troop, side) for side in SIDES for troop in TROOP_NAMES] # Class 
 def compute_placement_weights(valid_coords, is_ally):
     """Calc weights per tile, see CROSS_SIDE_BASE comments"""
     weights = np.ones(len(valid_coords), dtype=float)
-    for i, (r, c) in enumerate(valid_coords):
+    for i, (r, _) in enumerate(valid_coords):
         if is_ally and r < 16:
             weights[i] = CROSS_SIDE_BASE ** (15-r)
         elif not is_ally and r >= 16:
@@ -197,10 +198,12 @@ def paste_sprite(arena, sprite, center_x, center_y):
 
 def generate():
     # Setup output dirs
-    image_dir = os.path.join(OUTPUT_DIR, "images")
-    label_dir = os.path.join(OUTPUT_DIR, "labels")
-    os.makedirs(image_dir, exist_ok=True)
-    os.makedirs(label_dir, exist_ok=True)
+    train_image_dir = os.path.join(OUTPUT_DIR, "train", "images")
+    train_label_dir = os.path.join(OUTPUT_DIR, "train", "labels")
+    val_image_dir = os.path.join(OUTPUT_DIR, "val", "images")
+    val_label_dir = os.path.join(OUTPUT_DIR, "val", "labels")
+    for d in (train_image_dir, train_label_dir, val_image_dir, val_label_dir):
+        os.makedirs(d, exist_ok=True)
 
     # Setup
     base_arena = np.array(Image.open(ARENA_TEMPLATE).convert("RGBA"), dtype=np.uint8)
@@ -208,10 +211,11 @@ def generate():
     tile_centers = build_tile_centers(ARENA_TILE_BOUNDS)
     sprite_index = index_sprites(SPRITES_DIR)
     valid_coords = np.argwhere(PLACEMENT_MASK)  # turn mask into array of valid (r,c) coords
-    
 
-    # Start if/where we left off (for batch generation)
-    n_existing = len([f for f in os.listdir(image_dir) if f.endswith(".jpg")])
+    # Start if/where we left off
+    n_train = len([f for f in os.listdir(train_image_dir) if f.endswith(".jpg")])
+    n_val = len([f for f in os.listdir(val_image_dir) if f.endswith(".jpg")])
+    n_existing = n_train + n_val
     for i in range(n_existing, n_existing + N_TO_GENERATE):
         arena = base_arena.copy()
         labels = [] # list[class_id, bounding box]
@@ -245,12 +249,23 @@ def generate():
             if bbox is not None:
                 labels.append((class_id, *bbox))
 
-        # Save image as JPEG
-        img_path = os.path.join(image_dir, f"{i:06d}.jpg")
+        # Assign to val or train split
+        is_val = random.random() < VAL_SPLIT
+        if is_val:
+            split_image_dir, split_label_dir = val_image_dir, val_label_dir
+            split_idx = n_val
+            n_val += 1
+        else:
+            split_image_dir, split_label_dir = train_image_dir, train_label_dir
+            split_idx = n_train
+            n_train += 1
+
+        # Save image
+        img_path = os.path.join(split_image_dir, f"{split_idx:06d}.jpg")
         Image.fromarray(arena[:, :, :3]).save(img_path, quality=95) # jpeg standards
 
         # Write YOLO labels: class_id, centers, bbox dims (all normalized)
-        label_path = os.path.join(label_dir, f"{i:06d}.txt")
+        label_path = os.path.join(split_label_dir, f"{split_idx:06d}.txt")
         with open(label_path, "w") as f:
             for class_id, x1, y1, x2, y2 in labels:
                 center_x_norm = ((x1+x2) / 2) / image_w

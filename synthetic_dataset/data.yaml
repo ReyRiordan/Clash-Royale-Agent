@@ -1,6 +1,6 @@
 path: /Users/reyriordan/Documents/CS530-Final-Project/synthetic_dataset
-train: images
-val: images
+train: train/images
+val: val/images
 
 nc: 16
 names:
