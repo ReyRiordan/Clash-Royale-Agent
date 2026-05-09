@@ -4,3 +4,6 @@ __pycache__/
 .DS_Store
 
 .env
+
+synthetic_dataset/
+synthetic_dataset.zip
