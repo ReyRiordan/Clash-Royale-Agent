@@ -1,5 +1,34 @@
 # CS530-Final-Project
 
+## Codebase
+
+### Code
+
+[synthetic_generation.py](synthetic_generation.py) -> generate N synthetic data examples
+[visualize_labels.py](visualize_labels.py) -> visualize bounding boxes + labels for synthetically generated examples
+[train_yolo.ipynb](train_yolo.ipynb) -> code to fine-tune YOLO26 with synthetic data (on Google Colab free GPU)
+[validate_yolo.py](validate_yolo.py) -> quick yoink of built-in YOLO validation
+[capture_images.py](capture_images.py) -> take screenshot and crop/segment into 13 relevant regions
+[perception.py](perception.py) -> take cropped image input from capture_images.py, process with YOLO/SSIM/OCR to exact numerical state representations that policy network uses as input
+[policy_network.py](policy_network.py) -> CNN/DQN that takes in game state and Q estimates for 33 actions
+[execute_action.py](execute_action.py) -> executes an action using PyAutoGUI
+[environment.py](environment.py) -> Gym environment wrapper for RL training, automatic menu navigation to start new match
+[replay_buffer.py](replay_buffer.py) -> replay buffer for RL training
+[train_rl.py](train_rl.py) -> RL training, load recorded human data with undersampling
+[play_policy.py](play_policy.py) -> play matches with agent policy and allat
+[record_data.py](record_data.py) -> Records state + actions into human_data/ while human is playing on emulator
+
+### Files
+
+[sprites/](sprites/) -> all sprites for 16 troop classes (100-200 transparent pngs each), used for synthetic data generation
+[synthetic_dataset/](synthetic_dataset/) -> couple old synthetic data examples, full dataset (3k examples) is too big for repo
+[templates/](templates/) -> images of all cards + tower/arena states to use for comparison/detection base later
+[human_data/](human_data/) -> recorded human data, states/ and actions/
+[screenshots/](screenshots/) -> screenshots used for testing, cropping, etc
+[crops/](crops/) -> capture_images.py testing output
+[checkpoints/](checkpoints/) -> model checkpoints from RL training
+[runs/](runs/) -> auto-generated YOLO validation stats
+
 ## Plan
 
 ### Platform / Environment
@@ -28,8 +57,9 @@ Possible states:
 ### Perception Pipeline
 
 Simple computer vision (cards in hand, elixir, tower HP):
-- Cards in hand: take card slot crops, compare against the 8 known cropped view of cards in deck using greyscale conversion + SSIM, take best match (handles visual effect when not enough elixir)
-- Elixir and Tower HP: take crop of numbers, use basic thresholding to convert to black/white, OCR it (PyTesseract?)
+- Cards in hand: take card slot crops, compare against the 8 known cropped view of cards in deck using greyscale conversion + SSIM, take best match (handles grayscale effect when not enough elixir)
+- Tower HP: take crop of numbers, use custom thresholding to convert to binary (black digits on white background), OCR with EasyOCR
+- Elixir: take crop of elixir value, compare against 0-10 elixir value templates, take best match
 
 YOLO network (troop detection):
 - Pretrained YOLO: Ultralytics YOLO26 -> https://docs.ultralytics.com/models/yolo26/
@@ -65,34 +95,17 @@ Actions: discrete action space of 33 actions (whether to play card, which card t
 
 ### Agent Policy
 
+Policy Network Architecture:
+- Use CNN as the deep Q estimation network
+- Convolutional layers input: troop locations state tensor (16x32x18 -> 16 binary 32x18 arrays that represent if/where that class/troop is present in terms of arena tiles)
+- Dense layers input: flatten+concatenation of feature vector from convolutional layers + cards in hand (4 one-hot vectors, each size 8) + normalized tower HP values (6 total) + normalized elixir value
+- CNN output: Q estimation for each action (size 33), max determines which action to take
+
 Reinforcement Learning + Human Behavior Bootstrapping:
-- Use double DQN (CNN) with Prioritized Experience Replay (PER) buffer, pre-fill buffer with human data
+- Use double DQN (CNN) with replay buffer, pre-fill buffer with human data
 - Python script that records data while human plays on emulator: record environment state every second, record actions taken (attach actions to nearest state for dataset)
 - Human plays N matches against arena 1 training camp bot (try to play predictably, use similar counters and build up pushes in similar ways)
 - Undersample "wait" frames if excessively overrepresented in data
 - Positive rewards: deal tower damage, take opponent tower, win game
 - Negative rewards: take tower damage, lose tower, lose game, "leak" elixir, invalid action (not enough elixir to place card)
 - Auto-play training games to RL train
-
-CNN Architecture:
-- Use CNN as the deep Q estimation network
-- Convolutional layers input: troop locations state tensor (16x32x18 -> 16 binary 32x18 arrays that represent if/where that class/troop is present in terms of arena tiles)
-- Dense layers input: flatten+concatenation of feature vector from convolutional layers + cards in hand (4 one-hot vectors, each size 8) + normalized tower HP values (6 total) + normalized elixir value
-- CNN output: Q estimation for each action (size 33), max determines which action to take
-
-## Codebase
-
-### Code
-
-capture_images.py -> take screenshot and crop/segment into 12 relevant regions
-synthetic_generation.py -> generate N synthetic data examples
-visualize_labels.py -> visualize bounding boxes + labels for synthetically generated examples
-train_yolo.py -> code to fine-tune YOLO26 with synthetic data
-record_data.py -> UNFINISHED, supposed to record state + actions while human is playing on emulator
-perception.py -> take cropped image input from capture_images.py, process with YOLO/SSIM/OCR to exact numerical state representations that CNN uses as input
-
-### Files
-
-sprites/ -> all sprites for 16 troop classes (100-200 transparent pngs each), used for synthetic data generation
-synthetic_dataset/ -> all synthetically generated data to fine-tune YOLO network, includes images/ labels/ data.yaml
-templates/ -> images of all cards + tower/arena states to use for comparison/detection base later
