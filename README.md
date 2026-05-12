@@ -5,28 +5,47 @@
 ### Code
 
 [synthetic_generation.py](synthetic_generation.py) -> generate N synthetic data examples
+
 [visualize_labels.py](visualize_labels.py) -> visualize bounding boxes + labels for synthetically generated examples
+
 [train_yolo.ipynb](train_yolo.ipynb) -> code to fine-tune YOLO26 with synthetic data (on Google Colab free GPU)
+
 [validate_yolo.py](validate_yolo.py) -> quick yoink of built-in YOLO validation
+
 [capture_images.py](capture_images.py) -> take screenshot and crop/segment into 13 relevant regions
+
 [perception.py](perception.py) -> take cropped image input from capture_images.py, process with YOLO/SSIM/OCR to exact numerical state representations that policy network uses as input
+
 [policy_network.py](policy_network.py) -> CNN/DQN that takes in game state and Q estimates for 33 actions
+
 [execute_action.py](execute_action.py) -> executes an action using PyAutoGUI
+
 [environment.py](environment.py) -> Gym environment wrapper for RL training, automatic menu navigation to start new match
+
 [replay_buffer.py](replay_buffer.py) -> replay buffer for RL training
+
 [train_rl.py](train_rl.py) -> RL training, load recorded human data with undersampling
+
 [play_policy.py](play_policy.py) -> play matches with agent policy and allat
+
 [record_data.py](record_data.py) -> Records state + actions into human_data/ while human is playing on emulator
 
 ### Files
 
 [sprites/](sprites/) -> all sprites for 16 troop classes (100-200 transparent pngs each), used for synthetic data generation
+
 [synthetic_dataset/](synthetic_dataset/) -> couple old synthetic data examples, full dataset (3k examples) is too big for repo
+
 [templates/](templates/) -> images of all cards + tower/arena states to use for comparison/detection base later
+
 [human_data/](human_data/) -> recorded human data, states/ and actions/
+
 [screenshots/](screenshots/) -> screenshots used for testing, cropping, etc
+
 [crops/](crops/) -> capture_images.py testing output
+
 [checkpoints/](checkpoints/) -> model checkpoints from RL training
+
 [runs/](runs/) -> auto-generated YOLO validation stats
 
 ## Plan
