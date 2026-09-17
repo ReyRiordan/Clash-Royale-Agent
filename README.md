@@ -4,10 +4,17 @@ An AI agent that autonomously plays the real Clash Royale mobile game at beginne
 
 ### Demo
 
-Video of the 7 straight wins with delirious commentary:
+The agent finishing off the enemy king tower for the win, with its live state/Q-value output in the terminal on either side:
 
 <p align="center">
-  <a href="https://youtu.be/S25lfXmx7i4"><img src="https://img.youtube.com/vi/S25lfXmx7i4/maxresdefault.jpg" alt="Gameplay Demo (with delirious commentary)" width="480"></a>
+  <img src="outputs/highlight.gif" alt="Agent destroys the enemy king tower and wins the match, terminal output scrolling beside the emulator" width="480">
+</p>
+
+Full video of the 7 straight wins, with delirious commentary:
+
+<p align="center">
+  <a href="https://youtu.be/S25lfXmx7i4"><img src="outputs/demo_thumbnail.jpg" alt="Play the full gameplay video on YouTube" width="480"></a><br>
+  <a href="https://youtu.be/S25lfXmx7i4">&#9654; Watch the full 7-win streak (22 min)</a>
 </p>
 
 ### How it works
@@ -82,6 +89,10 @@ Run scripts as modules from the repo root, e.g. `python -m src.training.train_rl
 
 [outputs/runs/](outputs/runs/) -> auto-generated YOLO validation stats
 
-[outputs/recording.gif](outputs/recording.gif) -> demo recording of the agent playing
+[outputs/highlight.gif](outputs/highlight.gif) -> short demo GIF shown at the top of this README
+
+[outputs/demo_thumbnail.jpg](outputs/demo_thumbnail.jpg) -> YouTube thumbnail with play button, links to the full demo video
+
+[outputs/recording.gif](outputs/recording.gif) -> older raw screen recording of the agent playing
 
 [Principles of AI - Final Report.pdf](Principles%20of%20AI%20-%20Final%20Report.pdf) -> final report
