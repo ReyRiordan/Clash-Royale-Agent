@@ -7,7 +7,7 @@ An AI agent that autonomously plays the real Clash Royale mobile game at beginne
 The agent finishing off the enemy king tower for the win, with its live state/Q-value output in the terminal on either side:
 
 <p align="center">
-  <img src="outputs/highlight.gif" alt="Agent destroys the enemy king tower and wins the match, terminal output scrolling beside the emulator" width="480">
+  <img src="outputs/highlight.gif" alt="Agent destroys the enemy king tower and wins the match, terminal output scrolling beside the emulator" width="360">
 </p>
 
 Full video of the 7 straight wins, with delirious commentary:
