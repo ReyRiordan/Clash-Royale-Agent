@@ -1,4 +1,4 @@
-# Clash Royale Agent (CS530 Final Project)
+# Clash Royale Agent (Graduate AI Course Final Project)
 
 An AI agent that autonomously plays the real Clash Royale mobile game at beginner (Arena 1) level. Since the game is proprietary and can't be run programmatically, the agent plays like a human: it perceives by taking screenshots of the game (running in the MuMuPlayer Android emulator on a MacBook Air M2) and acts by clicking with PyAutoGUI. See full details in the [final report](Principles%20of%20AI%20-%20Final%20Report.pdf).
 
